@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+typing
+pydantic
+pydantic_settings
+sqlalchemy
+oracledb
