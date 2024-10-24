@@ -1,5 +1,5 @@
 def calc_income(is_government: str):
-    income_from_job = basic_salary = house_rent_allowance = medical_allowance = festival_bonus = rent_free_accommodation = accommodation_at_concessional_rate = vehicle_facility_provided = other_non_cash = arrear_salary = education_allowance = entertainment_allowance = contribution_to_rpf = gratuity = interest_rpf = leave_allowance = other_bonus = overtime_allowance = pension = ta_da = others = 0
+    income_from_job = basic_salary = house_rent_allowance = medical_allowance = festival_bonus = rent_free_accommodation = accommodation_at_concessional_rate = vehicle_facility_provided = other_non_cash = arrear_salary = education_allowance = entertainment_allowance = contribution_to_rpf = gratuity = interest_rpf = leave_allowance = other_bonus = overtime_allowance = pension = arrear_pay = appointment_pay = batsman_allowance = charge_allowance = chawki_allowance = compensatory_allowance = conveyance_allowance = cook_allowance = daily_allowance = dearness_allowance = defence = deputation = disturbance = support_staff = education = flying_pay = foreign = gratuity = gpf = good_conduct_pay = hazardous = haircut = hill = honorarium = judicial = lumpgrant = medal = mobile = overtime = other_retirement = pension = personal = residential_telephone = ration = refreshment = recreation = retainer = special_pay = ssg = security = ta_da = tiffin = transport = training = travel = uniform = washing = worthiness = others = 0
     basic_salary = int(input("Basic salary: "))
     house_rent_allowance = int(input("House rent allowance: "))
     medical_allowance = int(input("Medical allowance: "))
@@ -40,8 +40,65 @@ def calc_income(is_government: str):
         else :
             pass
 
-    income_from_job = basic_salary + house_rent_allowance + medical_allowance + festival_bonus + rent_free_accommodation + accommodation_at_concessional_rate + vehicle_facility_provided + other_non_cash + arrear_salary + education_allowance + entertainment_allowance + contribution_to_rpf + gratuity + interest_rpf + leave_allowance + other_bonus + overtime_allowance +pension + ta_da + others
+        income_from_job = basic_salary + house_rent_allowance + medical_allowance + festival_bonus + rent_free_accommodation + accommodation_at_concessional_rate + vehicle_facility_provided + other_non_cash + arrear_salary + education_allowance + entertainment_allowance + contribution_to_rpf + gratuity + interest_rpf + leave_allowance + other_bonus + overtime_allowance +pension + ta_da + others
     
+    else:
+
+        other_benefit = input("Do you have other benefits? (Y/N) ")
+        if other_benefit == "Y" :
+        
+            arrear_pay = int(input("Arrear pay: "))
+            appointment_pay = int(input("Appointment pay: "))
+            batsman_allowance = int(input("Batsman allowance: "))
+            charge_allowance = int(input("Charge allowance: "))
+            chawki_allowance = int(input("Chawki allowance: "))
+            compensatory_allowance = int(input("Compensatory allowence: "))
+            conveyance_allowance = int(input("Conveyance allowance: "))
+            cook_allowance = int(input("Cook allowance: "))
+            daily_allowance = int(input("Daily allowance: "))
+            dearness_allowance = int(input("Dearness allowance/Special benefit: "))
+            defence = int(input("Defence service allowance"))
+            deputation = int(input("Deputation allowance: "))
+            disturbance = int(input("Disturbance allowence: "))
+            support_staff = int(input("Allowance for support staff: "))
+            education = int(input("Education allowance: "))
+            flying_pay = int(input("Flying pay: "))
+            foreign = int(input("Foreign allowance: "))
+            gratuity = int(input("Gratuity: "))
+            gpf = int(input("GPF interest: "))
+            good_conduct_pay = int(input("Good conduct pay: "))
+            hazardous = int(input("Hazardous job allowance: "))
+            haircut = int(input("Haircut allowance: "))
+            hill = int(input("Hill allowance: "))
+            honorarium = int(input("Honorarium: "))
+            judicial = int(input("Judicial allowance: "))
+            lumpgrant = int(input("Lumpgrant/Leave encashment: "))
+            medal = int(input("Medal allowance: "))
+            mobile = int(input("Mobile/Cellphone allowance: "))
+            overtime  = int(input("Overtime allowance: "))
+            other_retirement = int(input("Other retirement benefits: "))
+            pension = int(input("Pension: "))
+            personal = int(input("Personal pay: "))
+            residential_telephone = int(input("Residential telephone enchashment allowance: "))
+            ration = int(input("Ration allowance: "))
+            refreshment = int(input("Refreshment allowance: "))
+            recreation = int(input("Rest and recreation allowance: "))
+            retainer = int(input("Retainer allowance: "))
+            special_pay = int(input("Special pay: "))
+            ssg = int(input("SSG pay: "))
+            security = int(input("Security allowance: "))
+            ta_da = int(input("TA/DA/Conveyance(not expended): "))
+            tiffin = int(input("Tiffin allowance: "))
+            transport = int(input("Transport maintenance allowance: "))
+            training = int(input("Training allowance: "))
+            travel = int(input("Travel allowance: "))
+            uniform = int(input("Uniform allowance: "))
+            washing = int(input("Washing allowance: "))
+            worthiness = int(input("Worthiness pay: "))
+            others = int(input("Others: "))
+        
+        income_from_job = basic_salary + house_rent_allowance + medical_allowance + festival_bonus + arrear_pay + appointment_pay + batsman_allowance + charge_allowance + chawki_allowance + compensatory_allowance + conveyance_allowance + cook_allowance + daily_allowance + dearness_allowance + defence + deputation + disturbance + support_staff + education + flying_pay + foreign + gratuity + gpf + good_conduct_pay + hazardous + haircut + hill + honorarium + judicial + lumpgrant + medal + mobile + overtime + other_retirement + pension + personal + residential_telephone + ration + refreshment + recreation + retainer + special_pay +ssg + security +ta_da + tiffin + transport + training + travel + uniform + washing + worthiness + others
+
     return income_from_job
 
 
