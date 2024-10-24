@@ -26,6 +26,8 @@ async def get_data():
     connection.close()
     return {"data": rows}
 
+
+
 @app.post("/data")
 async def create_item(item: Item):
     connection = get_db_connection()

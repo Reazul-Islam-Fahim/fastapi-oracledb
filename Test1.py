@@ -19,10 +19,16 @@ class IncomeCalculator:
                 rent_free_accommodation + accommodation_at_concessional_rate + vehicle_facility_provided +
                 other_non_cash
             )
+            return self.income_from_job
+        
         else:
             self.income_from_job = basic_salary + house_rent_allowance + medical_allowance + festival_bonus
+            other_benefits = self._get_government_benefits()
+            self.income_from_job += sum(other_benefits)
 
-        return self.income_from_job
+            i = [self.income_from_job, basic_salary, festival_bonus]
+
+            return i
 
     def _get_vehicle_facility(self):
         vehicle_facility_provided = 0
@@ -49,6 +55,60 @@ class IncomeCalculator:
             other_non_cash += int(input("TA/DA/Conveyance not expended: "))
             other_non_cash += int(input("Others: "))
         return other_non_cash
+
+    def _get_government_benefits(self):
+        benefits = []
+        if input("Do you have other government benefits? (Y/N): ").upper() == "Y":
+            benefits.append(int(input("Arrear pay: ")))
+            benefits.append(int(input("Appointment pay: ")))
+            benefits.append(int(input("Batsman allowance: ")))
+            benefits.append(int(input("Charge allowance: ")))
+            benefits.append(int(input("Chawki allowance: ")))
+            benefits.append(int(input("Compensatory allowance: ")))
+            benefits.append(int(input("Conveyance allowance: ")))
+            benefits.append(int(input("Cook allowance: ")))
+            benefits.append(int(input("Daily allowance: ")))
+            benefits.append(int(input("Dearness allowance: ")))
+            benefits.append(int(input("Defence service allowance: ")))
+            benefits.append(int(input("Deputation allowance: ")))
+            benefits.append(int(input("Disturbance allowance: ")))
+            benefits.append(int(input("Support staff allowance: ")))
+            benefits.append(int(input("Education allowance: ")))
+            benefits.append(int(input("Flying pay: ")))
+            benefits.append(int(input("Foreign allowance: ")))
+            benefits.append(int(input("Gratuity: ")))
+            benefits.append(int(input("GPF interest: ")))
+            benefits.append(int(input("Good conduct pay: ")))
+            benefits.append(int(input("Hazardous job allowance: ")))
+            benefits.append(int(input("Haircut allowance: ")))
+            benefits.append(int(input("Hill allowance: ")))
+            benefits.append(int(input("Honorarium: ")))
+            benefits.append(int(input("Judicial allowance: ")))
+            benefits.append(int(input("Lumpgrant/Leave encashment: ")))
+            benefits.append(int(input("Medal allowance: ")))
+            benefits.append(int(input("Mobile/Cellphone allowance: ")))
+            benefits.append(int(input("Overtime allowance: ")))
+            benefits.append(int(input("Other retirement benefits: ")))
+            benefits.append(int(input("Pension: ")))
+            benefits.append(int(input("Personal pay: ")))
+            benefits.append(int(input("Residential telephone allowance: ")))
+            benefits.append(int(input("Ration allowance: ")))
+            benefits.append(int(input("Refreshment allowance: ")))
+            benefits.append(int(input("Recreation allowance: ")))
+            benefits.append(int(input("Retainer allowance: ")))
+            benefits.append(int(input("Special pay: ")))
+            benefits.append(int(input("SSG pay: ")))
+            benefits.append(int(input("Security allowance: ")))
+            benefits.append(int(input("TA/DA/Conveyance (not expended): ")))
+            benefits.append(int(input("Tiffin allowance: ")))
+            benefits.append(int(input("Transport maintenance allowance: ")))
+            benefits.append(int(input("Training allowance: ")))
+            benefits.append(int(input("Travel allowance: ")))
+            benefits.append(int(input("Uniform allowance: ")))
+            benefits.append(int(input("Washing allowance: ")))
+            benefits.append(int(input("Worthiness pay: ")))
+            benefits.append(int(input("Others: ")))
+        return benefits
 
 
 class TaxCalculator:
@@ -93,22 +153,20 @@ class TaxCalculator:
 def main():
     is_government_employee = input("Are you a Government Employee? (Y/N): ").upper()
 
-    name_of_employeer = input("Enter the name of your employeer: ")
-
+    name_of_employer = input("Enter the name of your employer: ")
     designation = input("Enter your designation: ")
-
     is_shareholder = input("Are you a Shareholder Director? (Y/N): ")
 
     income_calculator = IncomeCalculator(is_government_employee)
     income_calculator.calc_income()
 
     # Calculate taxable income based on exemptions
-    income = income_calculator.income_from_job
+    total_income = income_calculator.income_from_job
     if is_government_employee == "N":
-        taxable_income = income - (income / 3 if (income / 3) < 450000 else 450000)
+        taxable_income = total_income - (total_income / 3 if (total_income / 3) < 450000 else 450000)
     else:
-        print("You should be a private employee")
-        return
+        income = total_income[1] + total_income[2]
+        taxable_income = income - (income / 3 if (income / 3) < 450000 else 450000)  # You can adjust this logic if necessary
 
     print("Your taxable income is:", taxable_income)
 

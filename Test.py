@@ -41,7 +41,8 @@ def calc_income(is_government: str):
             pass
 
         income_from_job = basic_salary + house_rent_allowance + medical_allowance + festival_bonus + rent_free_accommodation + accommodation_at_concessional_rate + vehicle_facility_provided + other_non_cash + arrear_salary + education_allowance + entertainment_allowance + contribution_to_rpf + gratuity + interest_rpf + leave_allowance + other_bonus + overtime_allowance +pension + ta_da + others
-    
+        return income_from_job
+
     else:
 
         other_benefit = input("Do you have other benefits? (Y/N) ")
@@ -98,8 +99,9 @@ def calc_income(is_government: str):
             others = int(input("Others: "))
         
         income_from_job = basic_salary + house_rent_allowance + medical_allowance + festival_bonus + arrear_pay + appointment_pay + batsman_allowance + charge_allowance + chawki_allowance + compensatory_allowance + conveyance_allowance + cook_allowance + daily_allowance + dearness_allowance + defence + deputation + disturbance + support_staff + education + flying_pay + foreign + gratuity + gpf + good_conduct_pay + hazardous + haircut + hill + honorarium + judicial + lumpgrant + medal + mobile + overtime + other_retirement + pension + personal + residential_telephone + ration + refreshment + recreation + retainer + special_pay +ssg + security +ta_da + tiffin + transport + training + travel + uniform + washing + worthiness + others
-
-    return income_from_job
+        a = [income_from_job, basic_salary, festival_bonus]
+        return a
+    
 
 
 def tax_slab(taxable_income) :
@@ -176,6 +178,14 @@ def tax_slab(taxable_income) :
     tax_liability = first + second + third + fourth + fifth + sixth
     return tax_liability
 
+def calc_taxable_amount(income: int):
+    x = income/3
+    if x < 450000 :
+        taxable_income = income - x
+    else :
+        taxable_income = income - 450000
+
+    return taxable_income
 
 
 
@@ -193,13 +203,12 @@ def main():
 
     if is_government_employee == "N":
         income = calc_income(is_government_employee)
-        x = income/3
-        if x < 450000 :
-            taxable_income = income - x
-        else :
-            taxable_income = income - 450000
+        taxable_income = calc_taxable_amount(income)
+        
     else:
-        print("You should be a private employee")
+        i = calc_income(is_government_employee)
+        income = i[1] + i[2]
+        taxable_income = calc_taxable_amount(income)
 
     print("Your taxable income is:", taxable_income)
 

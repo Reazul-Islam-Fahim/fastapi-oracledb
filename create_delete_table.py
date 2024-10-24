@@ -42,6 +42,28 @@ async def create_table(table_schema: TableSchema = Query(...)):
         connection.close()
 
 
+@app.get("/table")
+async def get_table(table_schema: TableSchema = Query(...)):
+    if not is_valid_table_name(table_schema.table_name):
+        raise HTTPException(status_code=400, detail="Invalid table name.")
+
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            create_table_sql = f"""
+                SELECT * FROM test
+            """
+            cursor.execute(create_table_sql)
+            connection.commit()
+            return {"message": f"Table '{table_schema.table_name}' fetched successfully."}
+    except Exception as e:
+        connection.rollback()
+        # Consider logging the error here for your own debugging purposes
+        raise HTTPException(status_code=400, detail="Error fetching table.")
+    finally:
+        connection.close()
+
+
 @app.delete("/delete-table")
 async def delete_table(table_name: str = Query(...)):
     if not is_valid_table_name(table_name):
