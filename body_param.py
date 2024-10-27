@@ -5,11 +5,11 @@ from typing import Dict, Annotated
 from db import get_db_connection
 import oracledb
 
-
 app = FastAPI()
 
 # Define the input data structure
 class IncomeInput(BaseModel):
+    id: Annotated[int, "Enter your id: "]
     is_government: Annotated[str, "Are you a government employee? ('Y' or 'N')"]
     basic_salary: Annotated[int, "Basic salary amount"]
     house_rent_allowance: Annotated[int, "House rent allowance amount"]
@@ -31,7 +31,7 @@ class IncomeCalculator:
         self.income_from_job = 0
 
     def calc_income(self):
-        if self.is_government == "N":
+        if self.is_government.upper() == "N":
             vehicle_facility_provided = self._get_vehicle_facility()
             other_non_cash = self._get_other_benefits()
             self.income_from_job = (
@@ -106,6 +106,7 @@ class TaxCalculator:
 
         return tax_liability
 
+
 @app.post("/calculate_income/")
 async def calculate_income(income_input: IncomeInput = Query(...)):
     
@@ -126,7 +127,7 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
     with connection.cursor() as cursor:
         try:
             cursor.execute(
-                "INSERT INTO BODY_PARAM (TOTAL_INCOME, TAXABLE_INCOME, TAX_LIABILTY) VALUES (:1, :2, :3, :4)",
+                "INSERT INTO HI (TOTAL_INCOME, TAXABLE_INCOME, TAX_LIABILTY) VALUES (:1, :2, :3, :4)",
                 (income_input.id, total_income, taxable_income, tax_liability)
             )
             connection.commit()
@@ -147,7 +148,7 @@ async def get_income_records(income_input: IncomeInput = Query(...)):
     connection = get_db_connection()
     with connection.cursor() as cursor:
 
-        cursor.execute("SELECT * FROM BODY_PARAM")  
+        cursor.execute("SELECT * FROM HI")  
         rows = cursor.fetchall()
 
     connection.close()
