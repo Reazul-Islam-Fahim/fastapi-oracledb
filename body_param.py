@@ -4,14 +4,12 @@ import pydantic_core
 from typing import Dict, Annotated
 from db import get_db_connection
 import oracledb
-import sqlalchemy
-#from sqlalchemy import UUID
+
 
 app = FastAPI()
 
 # Define the input data structure
 class IncomeInput(BaseModel):
-    #id: Annotated[UUID, "Enter you id: "]
     is_government: Annotated[str, "Are you a government employee? ('Y' or 'N')"]
     basic_salary: Annotated[int, "Basic salary amount"]
     house_rent_allowance: Annotated[int, "House rent allowance amount"]
@@ -127,15 +125,15 @@ async def calculate_income(income_input: IncomeInput):
     connection = get_db_connection()
     with connection.cursor() as cursor:
         try:
-            await cursor.execute(
+            cursor.execute(
                 "INSERT INTO BODY_PARAM (TOTAL_INCOME, TAXABLE_INCOME, TAX_LIABILTY) VALUES (:1, :2, :3, :4)",
-                (IncomeInput.id, total_income, taxable_income, tax_liability)
+                (income_input.id, total_income, taxable_income, tax_liability)
             )
-            await connection.commit()
+            connection.commit()
         except Exception as e:
-            await connection.rollback()
+            connection.rollback()
             raise HTTPException(status_code=400, detail=str(e))
-    await connection.close()
+    connection.close()
 
     return {
         "total_income": total_income,
@@ -154,5 +152,9 @@ async def get_income_records(income_input: IncomeInput):
 
     connection.close()
     return {"data": rows}
+
+@app.get("/")
+async def hi():
+    return {"hello": "Welcome to taxdo"}
 
 
