@@ -28,7 +28,9 @@ async def create_table(table_schema: TableSchema = Query(...)):
             create_table_sql = f"""
                 CREATE TABLE {table_schema.table_name} (
                     id INT PRIMARY KEY,
-                    description VARCHAR2(255)
+                    Total_Income INT,
+                    Taxable_Income INT,
+                    Tax_Liability INT
                 )
             """
             cursor.execute(create_table_sql)
@@ -69,15 +71,15 @@ async def delete_table(table_name: str = Query(...)):
     if not is_valid_table_name(table_name):
         raise HTTPException(status_code=400, detail="Invalid table name.")
 
-    connection = get_db_connection()
+    connection = await get_db_connection()
     with connection.cursor() as cursor:
         try:
             delete_table_sql = f"DROP TABLE {table_name} CASCADE CONSTRAINTS"
-            cursor.execute(delete_table_sql)
-            connection.commit()
+            await cursor.execute(delete_table_sql)
+            await connection.commit()
             return {"message": f"Table '{table_name}' deleted successfully."}
         except Exception as e:
             connection.rollback()
             raise HTTPException(status_code=400, detail="Error deleting table: " + str(e))
         finally:
-            connection.close()
+            await connection.close()
