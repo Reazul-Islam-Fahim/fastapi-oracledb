@@ -4,11 +4,13 @@ import pydantic_core
 from typing import Dict, Annotated
 from db import get_db_connection
 import oracledb
+import logging
 
 app = FastAPI()
 
 # Define the input data structure
 class IncomeInput(BaseModel):
+    table_name: str
     id: Annotated[int, "Enter your id: "]
     is_government: Annotated[str, "Are you a government employee? ('Y' or 'N')"]
     basic_salary: Annotated[int, "Basic salary amount"]
@@ -114,7 +116,7 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
     income_calculator = IncomeCalculator(income_input.is_government, income_input)
     total_income = income_calculator.calc_income()
 
-    if income_input.is_government == "N":
+    if income_input.is_government.upper() == "N":
         taxable_income = total_income - (total_income / 3 if (total_income / 3) < 450000 else 450000)
     else:
         taxable_income = total_income - (total_income / 3 if (total_income / 3) < 450000 else 450000)
@@ -124,16 +126,16 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
     tax_liability = tax_calculator.calculate_tax()
 
     connection = get_db_connection()
-    with connection.cursor() as cursor:
-        try:
+    try:
+        with connection.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO HI (TOTAL_INCOME, TAXABLE_INCOME, TAX_LIABILTY) VALUES (:1, :2, :3, :4)",
+                f"INSERT INTO {income_input.table_name} (ID, TOTAL_INCOME, TAXABLE_INCOME, TAX_LIABILITY) VALUES (:1, :2, :3, :4)",
                 (income_input.id, total_income, taxable_income, tax_liability)
             )
             connection.commit()
-        except Exception as e:
-            connection.rollback()
-            raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
     connection.close()
 
     return {
@@ -143,20 +145,36 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
         "tax_liability": tax_liability
     }
 
-
 @app.get("/get_income_records/")
-async def get_income_records(income_input: IncomeInput = Query(...)):
+async def get_income_records():
     connection = get_db_connection()
-    with connection.cursor() as cursor:
-
-        cursor.execute("SELECT * FROM HI")  
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM HI")
+        column_names = [desc[0] for desc in cursor.description]
+            
+        # Fetch all rows
         rows = cursor.fetchall()
 
-    connection.close()
-    return {"data": rows}
+        # Format rows with column names
+        data = [dict(zip(column_names, row)) for row in rows]
+        
+        return {"data": data}
+
+    except Exception as e:
+        logging.error(f"Error fetching income records: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+    finally:
+        cursor.close()
+        connection.close()
+
 
 @app.get("/")
 async def hi():
     return {"hello": "Welcome to taxdo"}
+
+
+
 
 

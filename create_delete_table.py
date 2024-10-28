@@ -38,8 +38,9 @@ async def create_table(table_schema: TableSchema = Query(...)):
             return {"message": f"Table '{table_schema.table_name}' created successfully."}
     except Exception as e:
         connection.rollback()
-        # Consider logging the error here for your own debugging purposes
-        raise HTTPException(status_code=400, detail="Error creating table.")
+        error_message = f"Error creating table:  {str(e)}"
+        logging.error(error_message)
+        raise HTTPException(status_code=400, detail= error_message)
     finally:
         connection.close()
 
@@ -60,8 +61,9 @@ async def get_table(table_schema: TableSchema = Query(...)):
             return {"message": f"Table '{table_schema.table_name}' fetched successfully."}
     except Exception as e:
         connection.rollback()
-        # Consider logging the error here for your own debugging purposes
-        raise HTTPException(status_code=400, detail="Error fetching table.")
+        error_message = f"Error fetching table:  {str(e)}"
+        logging.error(error_message)
+        raise HTTPException(status_code=400, detail= error_message)
     finally:
         connection.close()
 
