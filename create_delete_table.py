@@ -52,10 +52,10 @@ async def get_table(table_schema: TableSchema = Query(...)):
     connection = get_db_connection()
     try:
         with connection.cursor() as cursor:
-            create_table_sql = f"""
+            show_table_sql = f"""
                 SELECT * FROM test
             """
-            cursor.execute(create_table_sql)
+            cursor.execute(show_table_sql)
             connection.commit()
             return {"message": f"Table '{table_schema.table_name}' fetched successfully."}
     except Exception as e:
@@ -67,19 +67,26 @@ async def get_table(table_schema: TableSchema = Query(...)):
 
 
 @app.delete("/delete-table")
-async def delete_table(table_name: str = Query(...)):
-    if not is_valid_table_name(table_name):
+async def delete_table(table_schema: TableSchema = Query(...)):
+    if not is_valid_table_name(table_schema.table_name):
         raise HTTPException(status_code=400, detail="Invalid table name.")
 
-    connection = await get_db_connection()
+    connection = get_db_connection()
     with connection.cursor() as cursor:
         try:
-            delete_table_sql = f"DROP TABLE {table_name} CASCADE CONSTRAINTS"
-            await cursor.execute(delete_table_sql)
-            await connection.commit()
-            return {"message": f"Table '{table_name}' deleted successfully."}
+            delete_table_sql = f"""DROP TABLE {table_schema.table_name} CASCADE CONSTRAINTS"""
+            cursor.execute(delete_table_sql)
+            connection.commit()
+            return {"message": f"Table '{table_schema.table_name}' deleted successfully."}
         except Exception as e:
             connection.rollback()
-            raise HTTPException(status_code=400, detail="Error deleting table: " + str(e))
+            error_message = f"Error deleting table:  {str(e)}"
+            logging.error(error_message)
+            raise HTTPException(status_code=400, detail= error_message)
         finally:
-            await connection.close()
+            connection.close()
+
+
+@app.get("/")
+async def show():
+    return {"Welcome": "You can do manipulation in this API"}

@@ -137,13 +137,14 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
     connection.close()
 
     return {
+        "id": income_input.id,
         "total_income": total_income,
         "taxable_income": taxable_income,
         "tax_liability": tax_liability
     }
 
 
-@app.get("get_income_records")
+@app.get("/get_income_records/")
 async def get_income_records(income_input: IncomeInput = Query(...)):
     connection = get_db_connection()
     with connection.cursor() as cursor:
