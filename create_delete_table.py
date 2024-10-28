@@ -72,19 +72,20 @@ async def delete_table(table_schema: TableSchema = Query(...)):
         raise HTTPException(status_code=400, detail="Invalid table name.")
 
     connection = get_db_connection()
-    with connection.cursor() as cursor:
-        try:
+    
+    try:
+        with connection.cursor() as cursor:
             delete_table_sql = f"""DROP TABLE {table_schema.table_name} CASCADE CONSTRAINTS"""
             cursor.execute(delete_table_sql)
             connection.commit()
             return {"message": f"Table '{table_schema.table_name}' deleted successfully."}
-        except Exception as e:
-            connection.rollback()
-            error_message = f"Error deleting table:  {str(e)}"
-            logging.error(error_message)
-            raise HTTPException(status_code=400, detail= error_message)
-        finally:
-            connection.close()
+    except Exception as e:
+        connection.rollback()
+        error_message = f"Error deleting table:  {str(e)}"
+        logging.error(error_message)
+        raise HTTPException(status_code=400, detail= error_message)
+    finally:
+        connection.close()
 
 
 @app.get("/")
