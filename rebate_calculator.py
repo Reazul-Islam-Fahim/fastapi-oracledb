@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 import pydantic_core
-from typing import Dict, Annotated
+from typing import Annotated
 from db import get_db_connection
 import oracledb
 import logging
@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from salary_income_calculator import TaxLiabilityCalculator
 
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
 
 # origins = [
 #     "https://localhost:8000",
@@ -66,11 +68,11 @@ class RebateCalculator:
 
     def calculate_rebate(self):
             
-        rebate_sector1 = TaxLiabilityCalculator._calculate_tax_liability()
+        rebate_sector1 = TaxLiabilityCalculator._calculate_tax_liability(1500000)
 
         rebate_sector2 = self.investment_calculator.allowable_investment * 0.15
         
-        rebate = min(rebate_sector1, rebate_sector2, 1000000 )
+        rebate = min(rebate_sector1, rebate_sector2, 1000000)
 
         return rebate
     
@@ -108,21 +110,22 @@ async def post_rebate(tablename : TableName = Query(...), inv_input : Investment
     inv_calculator = InvestmentCalculator(inv_input)
     investment = inv_calculator.inv_calc()
 
-    rebate_calculator = RebateCalculator(investment)
+    rebate_calculator = RebateCalculator(inv_calculator)
     rebate = rebate_calculator.calculate_rebate()
 
     connection = get_db_connection()
     try:
         with connection.cursor() as cursor:
             cursor.execute(
-                f"INSERT INTO {tablename.table_name} (ID, Allowable Investment, Rebate) VALUES (:1, :2, :3)",
+                f"INSERT INTO {tablename.table_name} (ID, ALLOWABLE_INVESTMENT, REBATE) VALUES (:1, :2, :3)",
                 (inv_input.id, investment, rebate)
             )
             connection.commit()
     except Exception as e:
         connection.rollback()
         raise HTTPException(status_code=400, detail=str(e))
-    connection.close()
+    finally:
+        connection.close()
 
     return {
         "rebate" : rebate

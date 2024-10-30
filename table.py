@@ -12,6 +12,9 @@ app = FastAPI()
 
 class TableSchema(BaseModel):
     table_name: str
+    col1 : str
+    col2 : str
+    col3 : str
 
 def is_valid_table_name(name: str) -> bool:
     # Basic validation: table names should start with a letter and can contain letters, numbers, and underscores
@@ -27,10 +30,9 @@ async def create_table(table_schema: TableSchema = Query(...)):
         with connection.cursor() as cursor:
             create_table_sql = f"""
                 CREATE TABLE {table_schema.table_name} (
-                    id INT PRIMARY KEY,
-                    Total_Income INT,
-                    Taxable_Income INT,
-                    Tax_Liability INT
+                    {table_schema.col1} NUMBER PRIMARY KEY,
+                    {table_schema.col2} NUMBER,
+                    {table_schema.col3} NUMBER
                 )
             """
             cursor.execute(create_table_sql)
@@ -54,7 +56,7 @@ async def get_table(table_schema: TableSchema = Query(...)):
     try:
         with connection.cursor() as cursor:
             show_table_sql = f"""
-                SELECT * FROM test
+                SELECT * FROM {table_schema.table_name}
             """
             cursor.execute(show_table_sql)
             connection.commit()
