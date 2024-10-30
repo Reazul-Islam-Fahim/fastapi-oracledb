@@ -29,6 +29,7 @@ class TableName(BaseModel):
 
 
 class InvestmentInput(BaseModel):
+    table_name: str
     id: Annotated[int, "ID: "]
     dps : Annotated[int, "DPS: "] = 0
     gov_securities : Annotated[int, "Government Securities: "] = 0
@@ -66,9 +67,33 @@ class RebateCalculator:
     def __init__(self, inv_calculator: InvestmentCalculator):
         self.investment_calculator = inv_calculator
 
-    def calculate_rebate(self):
+    def calculate_rebate(self, inv_input: InvestmentInput):
             
-        rebate_sector1 = TaxLiabilityCalculator._calculate_tax_liability(1500000)
+        connection = get_db_connection()
+        try:
+            with connection.cursor() as cursor:
+                # Parameterized query to prevent SQL injection
+                cursor.execute(
+                    "SELECT TAX_LIABILITY FROM FAHIM.HI WHERE ID = :id",
+                    {"ID": inv_input.id}
+                )
+                print("working")
+                # Fetch a single row
+                result = cursor.fetchone()
+
+                if result is None:
+                    raise HTTPException(status_code=404, detail="No matching record found")
+
+                # Extract the first element from the result tuple
+                rebate_sector1 = result[3]
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+        finally:
+            connection.close()
+
+        # rebate_sector1 = TaxLiabilityCalculator._calculate_tax_liability(1500000)
 
         rebate_sector2 = self.investment_calculator.allowable_investment * 0.15
         
@@ -104,25 +129,27 @@ async def get_rebate(tablename : TableName = Query(...)):
 
 
 @app.post("/post_rebate/")
-async def post_rebate(tablename : TableName = Query(...), inv_input : InvestmentInput = Query(...)):
+async def post_rebate(inv_input : InvestmentInput = Query(...)):
     
 
     inv_calculator = InvestmentCalculator(inv_input)
     investment = inv_calculator.inv_calc()
 
-    rebate_calculator = RebateCalculator(inv_calculator)
+    rebate_calculator = RebateCalculator(investment)
     rebate = rebate_calculator.calculate_rebate()
 
     connection = get_db_connection()
     try:
         with connection.cursor() as cursor:
             cursor.execute(
-                f"INSERT INTO {tablename.table_name} (ID, ALLOWABLE_INVESTMENT, REBATE) VALUES (:1, :2, :3)",
+                f"INSERT INTO {inv_input.table_name} (ID, ALLOWABLE_INVESTMENT, REBATE) VALUES (:1, :2, :3)",
                 (inv_input.id, investment, rebate)
             )
             connection.commit()
+            logging.info(f"Inserted rebate: {rebate} for ID: {inv_input.id} into {inv_input.table_name}")
     except Exception as e:
         connection.rollback()
+        logging.error(f"Error inserting rebate: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     finally:
         connection.close()
