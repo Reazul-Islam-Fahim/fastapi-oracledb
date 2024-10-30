@@ -5,8 +5,23 @@ from typing import Dict, Annotated
 from db import get_db_connection
 import oracledb
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# origins = [
+#     "https://localhost:8000",
+# ]
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins = origins,
+#     allow_credentials = True,
+#     allow_methods = ['*'],
+#     allow_headers = ['*']
+# )
+
+
 
 # Define the input data structure
 class IncomeInput(BaseModel):
@@ -49,8 +64,8 @@ class IncomeCalculator:
         else:
             self.income_from_job = (
                 self.income_data.basic_salary +
-                self.income_data.house_rent_allowance +
-                self.income_data.medical_allowance +
+                # self.income_data.house_rent_allowance +
+                # self.income_data.medical_allowance +
                 self.income_data.festival_bonus
             )
             self.income_from_job += sum(self.income_data.government_benefits.values())
