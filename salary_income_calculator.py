@@ -22,6 +22,9 @@ app = FastAPI()
 # )
 
 
+class TableName(BaseModel):
+    table_name: str
+
 
 # Define the input data structure
 class IncomeInput(BaseModel):
@@ -85,7 +88,7 @@ class IncomeCalculator:
                 other_non_cash += value
         return other_non_cash
 
-class TaxCalculator:
+class TaxLiabilityCalculator:
     def __init__(self, taxable_income):
         self.taxable_income = taxable_income
         self.exemption_limit = 0
@@ -136,7 +139,7 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
     else:
         taxable_income = total_income - (total_income / 3 if (total_income / 3) < 450000 else 450000)
 
-    tax_calculator = TaxCalculator(taxable_income)
+    tax_calculator = TaxLiabilityCalculator(taxable_income)
     tax_calculator.set_exemption_limit(income_input.category, income_input.num_autistic_children)
     tax_liability = tax_calculator.calculate_tax()
 
@@ -161,11 +164,11 @@ async def calculate_income(income_input: IncomeInput = Query(...)):
     }
 
 @app.get("/get_income_records/")
-async def get_income_records():
+async def get_income_records(tablename : TableName = Query(...)):
     connection = get_db_connection()
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM HI")
+        cursor.execute(f"SELECT * FROM {tablename.table_name}")
         column_names = [desc[0] for desc in cursor.description]
             
         # Fetch all rows
