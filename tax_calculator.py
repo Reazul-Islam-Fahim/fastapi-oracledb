@@ -77,7 +77,7 @@ class TaxCalculator:
 
         return actual_payable_tax
 
-@app.get("/get_rebate/")
+@app.get("/get_tax/")
 async def get_rebate(tablename: TableName = Query(...)):
     connection = get_db_connection()
     try:
@@ -101,7 +101,7 @@ async def get_rebate(tablename: TableName = Query(...)):
         cursor.close()
         connection.close()
 
-@app.post("/post_rebate/")
+@app.post("/post_tax/")
 async def post_rebate(tax_input: TaxInput = Query(...)):
     tax_calculator = TaxCalculator(tax_input)
     actual_payable_tax = tax_calculator.tax_calc()

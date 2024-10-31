@@ -44,6 +44,9 @@ class InvestmentCalculator:
         self.allowable_investment = 0
 
     def inv_calc(self):
+
+        self.allowable_investment = 0
+        
         # Calculate allowable investment based on dps
         self.allowable_investment += min(self.inv_data.dps, 120000)
 
@@ -99,7 +102,10 @@ class RebateCalculator:
         finally:
             connection.close()
 
+        print(self.investment_calculator.inv_calc())
+
         rebate_sector2 = self.investment_calculator.inv_calc() * 0.15
+
 
         print(rebate_sector2)
         

@@ -10,6 +10,9 @@ logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
+class TableName(BaseModel):
+    table_name : str
+
 class TableSchema(BaseModel):
     table_name: str
     col1 : str
@@ -48,19 +51,19 @@ async def create_table(table_schema: TableSchema = Query(...)):
 
 
 @app.get("/table")
-async def get_table(table_schema: TableSchema = Query(...)):
-    if not is_valid_table_name(table_schema.table_name):
+async def get_table(table_name: TableName = Query(...)):
+    if not is_valid_table_name(table_name.table_name):
         raise HTTPException(status_code=400, detail="Invalid table name.")
 
     connection = get_db_connection()
     try:
         with connection.cursor() as cursor:
             show_table_sql = f"""
-                SELECT * FROM {table_schema.table_name}
+                SELECT * FROM {table_name.table_name}
             """
             cursor.execute(show_table_sql)
             connection.commit()
-            return {"message": f"Table '{table_schema.table_name}' fetched successfully."}
+            return {"message": f"Table '{table_name.table_name}' fetched successfully."}
     except Exception as e:
         connection.rollback()
         error_message = f"Error fetching table:  {str(e)}"
@@ -71,18 +74,18 @@ async def get_table(table_schema: TableSchema = Query(...)):
 
 
 @app.delete("/delete-table")
-async def delete_table(table_schema: TableSchema = Query(...)):
-    if not is_valid_table_name(table_schema.table_name):
+async def delete_table(table_name: TableName = Query(...)):
+    if not is_valid_table_name(table_name.table_name):
         raise HTTPException(status_code=400, detail="Invalid table name.")
 
     connection = get_db_connection()
     
     try:
         with connection.cursor() as cursor:
-            delete_table_sql = f"""DROP TABLE {table_schema.table_name} CASCADE CONSTRAINTS"""
+            delete_table_sql = f"""DROP TABLE {table_name.table_name} CASCADE CONSTRAINTS"""
             cursor.execute(delete_table_sql)
             connection.commit()
-            return {"message": f"Table '{table_schema.table_name}' deleted successfully."}
+            return {"message": f"Table '{table_name.table_name}' deleted successfully."}
     except Exception as e:
         connection.rollback()
         error_message = f"Error deleting table:  {str(e)}"
